@@ -13,8 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
     Optional<User> findByEmail(String email);
     List<User> findByRole(Role role); // Nouvelle méthode pour filtrer par rôle
-
-
+    Optional<User> findByKeycloakId(String keycloakId);
 //    boolean existsByUsername(String username);
 //
 //    boolean existsByEmail(String email);

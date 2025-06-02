@@ -16,7 +16,11 @@ public interface IServiceUser {
     List<User> getAllUsers();
     Optional<User> findById(Long id);
     List<User> getUsersByRole(Role role); // Nouvelle méthode
+    List<UserDTO> getTechniciens();
 
+    User saveKeycloakId(String keycloakId, String email);
+
+    User getUserBykeycloakId(String keycloakId);
     //User saveUserWithPhoto(User user, MultipartFile photo) throws IOException;
 
 //    boolean existsByUsername(String username); // Vérifier si un utilisateur existe par son username

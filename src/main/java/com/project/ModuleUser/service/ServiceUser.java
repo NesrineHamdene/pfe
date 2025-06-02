@@ -9,12 +9,30 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ServiceUser implements IServiceUser {
 
     @Autowired
     private UserRepository userRepository;
+
+    public ServiceUser(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    /**
+     * Lie un utilisateur local à son ID Keycloak
+     */
+    public User saveKeycloakId(String keycloakId, String email) {
+        return userRepository.findByKeycloakId(keycloakId)
+                .orElseGet(() -> {
+                    User user = userRepository.findByEmail(email)
+                            .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé via l'email"));
+                    user.setKeycloakId(keycloakId);
+                    return userRepository.save(user);
+                });
+    }
 
     @Override
     public User findByUsername(String username) {
@@ -65,34 +83,22 @@ public class ServiceUser implements IServiceUser {
         return userRepository.findByRole(role);
     }
 
+    @Override
+    public List<UserDTO> getTechniciens() {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getRole().equals(Role.TECHNICIEN_MAINTENANCE))
+                .map(user -> new UserDTO(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getRole(),
+                        user.getFileName()
+                ))
+                .collect(Collectors.toList());
+    }
+    public User getUserBykeycloakId(String keycloakId) {
+        return userRepository.findByKeycloakId(keycloakId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+    }
 
-
-//    @Override
-//    public User saveUserWithPhoto(User user, MultipartFile photo) throws IOException {
-//        if (photo != null && !photo.isEmpty()) {
-//            // Exemple : stockage dans un dossier local /uploads
-//            String uploadDir = "uploads/";
-//            String originalFilename = photo.getOriginalFilename();
-//
-//            File destFile = new File(uploadDir + originalFilename);
-//            destFile.getParentFile().mkdirs(); // crée le dossier si nécessaire
-//            photo.transferTo(destFile);
-//
-//            user.setFileName(originalFilename); // on stocke uniquement le nom
-//        }
-//
-//        return userRepository.save(user);
-
-   // }
-
-
-//    @Override
-//    public boolean existsByUsername(String username) {
-//        return userRepository.existsByUsername(username);
-//    }
-//
-//    @Override
-//    public boolean existsByEmail(String email) {
-//        return userRepository.existsByEmail(email);
-//    }
 }

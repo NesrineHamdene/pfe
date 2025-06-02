@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -21,6 +22,8 @@ public class UserController {
 
     @Autowired
     private IServiceUser serviceUser;
+
+    // Retourne tous les techniciens
     @GetMapping("/techniciens")
     public List<UserDTO> getTechniciens() {
         return serviceUser.getUsersByRole(Role.TECHNICIEN_MAINTENANCE)
@@ -29,12 +32,14 @@ public class UserController {
                 .toList();
     }
 
+    // Créer un utilisateur
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody UserDTO userDTO) {
         User newUser = serviceUser.createUser(convertToEntity(userDTO));
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
+    // Récupérer un utilisateur par ID
     @GetMapping("/id/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         Optional<User> user = serviceUser.findById(id);
@@ -42,11 +47,13 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // Récupérer un utilisateur par username
     @GetMapping("/{username}")
     public Optional<User> getUserByUsername(@PathVariable String username) {
         return Optional.ofNullable(serviceUser.findByUsername(username));
     }
 
+    // Récupérer un utilisateur par email
     @GetMapping("/email/{email}")
     public HttpEntity<Optional<User>> getUserByEmail(@PathVariable String email) {
         Optional<User> user = serviceUser.findByEmail(email);
@@ -56,6 +63,7 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    // Mettre à jour un utilisateur
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserDTO updatedUserDTO) {
         User updatedUser = serviceUser.updateUser(id, updatedUserDTO);
@@ -65,12 +73,14 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    // Supprimer un utilisateur
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         serviceUser.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    // Lister tous les utilisateurs (ou par rôle)
     @GetMapping
     public List<User> getAllUsers(@RequestParam(value = "role", required = false) Role role) {
         if (role == null) {
@@ -79,12 +89,14 @@ public class UserController {
             return serviceUser.getUsersByRole(role);
         }
     }
+
+    // Récupérer le profil de l'utilisateur connecté
     @GetMapping("/profile")
     public ResponseEntity<User> getCurrentUserProfile(Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        String username = principal.getName(); // Récupérer le nom d'utilisateur de l'utilisateur authentifié
+        String username = principal.getName(); // Récupère le nom d’utilisateur authentifié
         User user = serviceUser.findByUsername(username);
         if (user == null) {
             return ResponseEntity.notFound().build();
@@ -92,15 +104,7 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    // Méthodes de conversion
-    private User convertToEntity(UserDTO userDTO) {
-        User user = new User();
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
-        user.setRole(userDTO.getRole());
-        return user;
-    }
+    // Connexion manuelle (pour test ou fallback)
     @PostMapping("/signin")
     public ResponseEntity<String> authenticateUser(@RequestBody LoginRequest loginRequest) {
         User user = serviceUser.findByEmail(loginRequest.getEmail())
@@ -113,45 +117,52 @@ public class UserController {
         return ResponseEntity.ok("Connexion réussie");
     }
 
+    // 🔗 Nouvelle route : Lier KeycloakId à un utilisateur local
+    @PostMapping("/link-keycloak")
+    public ResponseEntity<User> linkKeycloakId(@RequestBody Map<String, String> payload) {
+        String keycloakId = payload.get("keycloakId");
+        String email = payload.get("email");
 
-//    @PostMapping("/upload")
-//    public ResponseEntity<?> addUserWithPhoto(
-//            @RequestParam("username") String username, // Changement de userName à username
-//            @RequestParam("email") String email,
-//            @RequestParam("role") Role role,         // Changement de type à role
-//            @RequestParam("password") String password,
-//            @RequestParam("confirmPassword") String confirmPassword,
-//            @RequestParam(value = "photo", required = false) MultipartFile photo) throws IOException {
-//
-//        if (!password.equals(confirmPassword)) {
-//            return ResponseEntity.badRequest().body("Les mots de passe ne correspondent pas");
-//        }
-//
-//        User user = new User();
-//        user.setUsername(username);
-//        user.setEmail(email);
-//        user.setRole(role);
-//        user.setPassword(password);
-//
-//        serviceUser.saveUserWithPhoto(user, photo);
-//
-//        return ResponseEntity.ok("Utilisateur enregistré avec succès avec image.");
-//    }
-//
+        User linkedUser = serviceUser.saveKeycloakId(keycloakId, email);
+        return ResponseEntity.ok(linkedUser);
+    }
+
+    // Convertir DTO → Entity
+    private User convertToEntity(UserDTO userDTO) {
+        User user = new User();
+        user.setUsername(userDTO.getUsername());
+        user.setEmail(userDTO.getEmail());
+        user.setPassword(userDTO.getPassword());
+        user.setRole(userDTO.getRole());
+        return user;
+    }
+    @GetMapping("/by-keycloak-id/{keycloakId}")
+    public ResponseEntity<UserDTO> getUserBykeycloakId(@PathVariable String keycloakId) {
+        User user = serviceUser.getUserBykeycloakId(keycloakId);
+        UserDTO dto = convertToDTO(user);
+        return ResponseEntity.ok(dto);
+    }
+
+    private UserDTO convertToDTO(User user) {
+        return new UserDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                user.getFileName()
+        );    }
+    @GetMapping("/by-role/{role}")
+    public ResponseEntity<List<UserDTO>> getUsersByRole(@PathVariable String role) {
+        List<User> users = serviceUser.getUsersByRole(Role.valueOf(role));
+        List<UserDTO> userDTOS = users.stream()
+                .map(user -> new UserDTO(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getRole(),
+                        user.getFileName()
+                ))
+                .toList();
+        return ResponseEntity.ok(userDTOS);
+    }
 }
-
-
-
-//    // Vérifier si un utilisateur existe par son username
-//    @GetMapping("/exists/username/{username}")
-//    public boolean existsByUsername(@PathVariable String username) {
-//        return serviceUser.existsByUsername(username);
-//    }
-//
-//    // Vérifier si un utilisateur existe par son email
-//    @GetMapping("/exists/email/{email}")
-//    public boolean existsByEmail(@PathVariable String email) {
-//        return serviceUser.existsByEmail(email);
-//    }
-
-

@@ -17,8 +17,11 @@ import org.antlr.v4.runtime.misc.NotNull;
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
-        @Column(unique = true, nullable = false)
 
+    // 🔑 Champ ajouté pour stocker le 'sub' de Keycloak
+    @Column(name = "keycloak_id", unique = true)
+    private String keycloakId;
+        @Column(unique = true, nullable = false)
         private String username;
         @NotNull
         private String password;
@@ -37,6 +40,13 @@ import org.antlr.v4.runtime.misc.NotNull;
 
     }
 
+    public String getKeycloakId() {
+        return keycloakId;
+    }
+
+    public void setKeycloakId(String keycloakId) {
+        this.keycloakId = keycloakId;
+    }
 
     public Long getId() {return id;}
 

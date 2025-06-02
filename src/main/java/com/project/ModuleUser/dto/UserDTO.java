@@ -15,6 +15,8 @@ import lombok.EqualsAndHashCode;
 //})
 public class UserDTO {
     private Long id;
+    private String keycloakId;
+
     private String username;
     private String email;
     private String password;
@@ -32,6 +34,22 @@ public class UserDTO {
         this.password = password;
         this.fileName = fileName;
 
+    }
+
+    public String getKeycloakId() {
+        return keycloakId;
+    }
+
+    public void setKeycloakId(String keycloakId) {
+        this.keycloakId = keycloakId;
+    }
+
+    public UserDTO(Long id, String username, String email, Role role, String fileName) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.role = role;
+        this.fileName = fileName;
     }
 
     // Getters et setters
