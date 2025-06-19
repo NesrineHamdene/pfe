@@ -19,10 +19,37 @@ import lombok.*;
         private String priorite;
         private String demandeur;
         private String ligne;
+        //@Column(name = "reference") // Assurez-vous que ce champ existe
         private String reference;
         private String impactProduction;
+        private String idUtilisateurCreateur;
+        private String idTechnicienAssigne;
 
+        private Long idmachine;
 
+    public Long getIdmachine() {
+        return idmachine;
+    }
+
+    public void setIdmachine(Long idmachine) {
+        this.idmachine = idmachine;
+    }
+
+    public String getIdUtilisateurCreateur() {
+        return idUtilisateurCreateur;
+    }
+
+    public void setIdUtilisateurCreateur(String idUtilisateurCreateur) {
+        this.idUtilisateurCreateur = idUtilisateurCreateur;
+    }
+
+    public String getIdTechnicienAssigne() {
+        return idTechnicienAssigne;
+    }
+
+    public void setIdTechnicienAssigne(String idTechnicienAssigne) {
+        this.idTechnicienAssigne = idTechnicienAssigne;
+    }
 
     public Long getId() {return id;}
 

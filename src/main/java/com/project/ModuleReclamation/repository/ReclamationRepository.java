@@ -32,4 +32,9 @@ public interface ReclamationRepository extends JpaRepository<Reclamation, Long> 
             @Param("priorite") String priorite,
             @Param("dateDebut") String dateDebut,
             @Param("dateFin") String dateFin);
+    List<Reclamation> findByIdTechnicienAssigne(String idTechnicienAssigne);
+
+    //List<Reclamation> findByDemandeur(String keycloakId);
+    List<Reclamation> findByIdUtilisateurCreateur(String idUtilisateurCreateur);
+
 }

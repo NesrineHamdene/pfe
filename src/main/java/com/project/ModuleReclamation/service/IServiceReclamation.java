@@ -26,4 +26,21 @@ public interface IServiceReclamation {
     List<Object[]> countReclamationsByDemandeur();
 
     List<Reclamation> getAllReclamationsWithFilters(String status, String priorite, LocalDate dateDebut, LocalDate dateFin);
+    List<Reclamation> getReclamationsByTechnicien(String idTechnicien);
+
+    void assignerTechnicien(Long idReclamation, String idTechnicien);
+
+    List<Reclamation> findByIdTechnicienAssigne(String keycloakId);
+
+    void updateStatus(Long id, String newStatus);
+
+    List<Reclamation> findAll();
+
+    Reclamation save(Reclamation reclamation);
+
+    List<Reclamation> getReclamationsByOperateur(String idUtilisateur);
+
+    Reclamation getById(Long id);
+    //List<Reclamation> getReclamationsByDemandeur(String keycloakId);
+
 }

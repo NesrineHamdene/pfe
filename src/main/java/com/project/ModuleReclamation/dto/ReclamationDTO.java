@@ -14,9 +14,34 @@ public class ReclamationDTO {
         private String ligne;
         private String reference;
         private String impactProduction;
+        private String idUtilisateurCreateur;
+        private String idTechnicienAssigne;
+        private Long    Idmachine;
 
+    public Long getIdmachine() {
+        return Idmachine;
+    }
 
-    //private Long userId; // Référence au User sans exposer tout l'objet
+    public void setIdmachine(Long idmachine) {
+        Idmachine = idmachine;
+    }
+
+    public String getIdUtilisateurCreateur() {
+        return idUtilisateurCreateur;
+    }
+
+    public void setIdUtilisateurCreateur(String idUtilisateurCreateur) {
+        this.idUtilisateurCreateur = idUtilisateurCreateur;
+    }
+
+    public String getIdTechnicienAssigne() {
+        return idTechnicienAssigne;
+    }
+
+    public void setIdTechnicienAssigne(String idTechnicienAssigne) {
+        this.idTechnicienAssigne = idTechnicienAssigne;
+    }
+//private Long userId; // Référence au User sans exposer tout l'objet
 
     public Long getId() {
         return id;
