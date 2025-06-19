@@ -9,6 +9,10 @@ import java.util.List;
 public interface IServiceKeycloakUserInfo {
     void registerUserFromJwt(Jwt jwt);
     List<KeycloakUserInfo> getAllUsers();
+    List<KeycloakUserInfo> getTechniciens();
 
     void deleteUserById(String id);
+
+    KeycloakUserInfo getUserById(String id);
+
 }

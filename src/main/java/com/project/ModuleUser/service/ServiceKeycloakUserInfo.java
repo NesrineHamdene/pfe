@@ -14,10 +14,11 @@ import java.util.Optional;
 public class ServiceKeycloakUserInfo implements IServiceKeycloakUserInfo {
 
     @Autowired
-    private KeycloakUserInfoRepository userInfoRepository;
+    private final KeycloakUserInfoRepository userInfoRepository;
     private final KeycloakUserInfoRepository repository;
 
-    public ServiceKeycloakUserInfo(KeycloakUserInfoRepository repository) {
+    public ServiceKeycloakUserInfo(KeycloakUserInfoRepository userInfoRepository, KeycloakUserInfoRepository repository) {
+        this.userInfoRepository = userInfoRepository;
         this.repository = repository;
     }
 
@@ -83,4 +84,16 @@ public class ServiceKeycloakUserInfo implements IServiceKeycloakUserInfo {
             throw new RuntimeException("Utilisateur avec id "+id+" non trouvé");
         }
     }
+
+    @Override
+    public KeycloakUserInfo getUserById(String id) {
+        return userInfoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID: " + id));
+    }
+
+    @Override
+    public List<KeycloakUserInfo> getTechniciens() {
+        return repository.findByRole("TECHNICIEN MAINTENANCE");
+    }
+
 }
